@@ -1,0 +1,313 @@
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+const cors = require('cors');
+const helmet = require('helmet');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
+const mockData = require('./mockData');
+
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
+});
+
+// Middleware
+app.use(helmet());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  credentials: true,
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// JWT Helper
+const generateToken = (user) => {
+  return jwt.sign(
+    { userId: user.id, email: user.email, role: user.role },
+    process.env.JWT_SECRET || 'mock-secret-key',
+    { expiresIn: '7d' }
+  );
+};
+
+// Auth middleware
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: { message: 'Access token required' } });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'mock-secret-key');
+    const user = mockData.findUserById(decoded.userId);
+    if (!user) {
+      return res.status(401).json({ error: { message: 'User not found' } });
+    }
+    req.user = user;
+    next();
+  } catch (error) {
+    return res.status(403).json({ error: { message: 'Invalid or expired token' } });
+  }
+};
+
+// Admin middleware
+const requireAdmin = (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: { message: 'Admin access required' } });
+  }
+  next();
+};
+
+// ============ AUTH ROUTES ============
+
+// Register
+app.post('/api/auth/register', (req, res) => {
+  const { email, password, firstName, lastName, studentId } = req.body;
+
+  if (!email || !password || !firstName || !lastName) {
+    return res.status(400).json({ error: { message: 'All fields are required' } });
+  }
+
+  const existingUser = mockData.findUserByEmail(email);
+  if (existingUser) {
+    return res.status(400).json({ error: { message: 'User with this email already exists' } });
+  }
+
+  const newUser = mockData.addUser(email, password, firstName, lastName, studentId);
+  const token = generateToken(newUser);
+
+  res.status(201).json({
+    message: 'User registered successfully',
+    user: {
+      id: newUser.id,
+      email: newUser.email,
+      firstName: newUser.first_name,
+      lastName: newUser.last_name,
+      role: newUser.role,
+    },
+    token,
+  });
+});
+
+// Login
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: { message: 'Email and password are required' } });
+  }
+
+  const user = mockData.findUserByEmail(email);
+  if (!user) {
+    return res.status(401).json({ error: { message: 'Invalid credentials' } });
+  }
+
+  const isValidPassword = await bcrypt.compare(password, user.password_hash);
+  if (!isValidPassword) {
+    return res.status(401).json({ error: { message: 'Invalid credentials' } });
+  }
+
+  const token = generateToken(user);
+
+  res.json({
+    message: 'Login successful',
+    user: {
+      id: user.id,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      role: user.role,
+    },
+    token,
+  });
+});
+
+// Get current user
+app.get('/api/auth/me', authenticateToken, (req, res) => {
+  res.json({
+    user: {
+      id: req.user.id,
+      email: req.user.email,
+      firstName: req.user.first_name,
+      lastName: req.user.last_name,
+      role: req.user.role,
+    },
+  });
+});
+
+// Verify token
+app.post('/api/auth/verify', authenticateToken, (req, res) => {
+  res.json({
+    valid: true,
+    user: {
+      id: req.user.id,
+      email: req.user.email,
+      firstName: req.user.first_name,
+      lastName: req.user.last_name,
+      role: req.user.role,
+    },
+  });
+});
+
+// ============ COURSES ROUTES ============
+
+// Get all courses for a term
+app.get('/api/courses/term/:termId', authenticateToken, (req, res) => {
+  const courses = mockData.getCoursesByTerm(parseInt(req.params.termId));
+  res.json({ courses, count: courses.length });
+});
+
+// Get active term
+app.get('/api/courses/terms/active', authenticateToken, (req, res) => {
+  const term = mockData.getActiveTerm();
+  if (!term) {
+    return res.status(404).json({ error: { message: 'No active term found' } });
+  }
+  res.json({ term });
+});
+
+// Get all terms
+app.get('/api/courses/terms/list', authenticateToken, (req, res) => {
+  res.json({ terms: mockData.terms });
+});
+
+// ============ SELECTIONS ROUTES ============
+
+// Get user's selections
+app.get('/api/selections/term/:termId', authenticateToken, (req, res) => {
+  const selections = mockData.getUserSelections(req.user.id, parseInt(req.params.termId));
+  res.json({ selections });
+});
+
+// Select a course
+app.post('/api/selections/select', authenticateToken, (req, res) => {
+  const { courseId, termId, preferenceRank } = req.body;
+
+  if (!courseId || !termId || !preferenceRank) {
+    return res.status(400).json({ error: { message: 'Course ID, term ID, and preference rank are required' } });
+  }
+
+  if (preferenceRank < 1 || preferenceRank > 3) {
+    return res.status(400).json({ error: { message: 'Preference rank must be between 1 and 3' } });
+  }
+
+  const selection = mockData.addSelection(req.user.id, courseId, termId, preferenceRank);
+
+  // Broadcast real-time update
+  const courses = mockData.getCoursesByTerm(termId);
+  const updatedCourse = courses.find(c => c.id === courseId);
+  io.to(`term_${termId}`).emit('course_updated', updatedCourse);
+
+  res.status(201).json({
+    message: 'Selection saved successfully',
+    selection,
+  });
+});
+
+// Remove a selection
+app.delete('/api/selections/:selectionId', authenticateToken, (req, res) => {
+  const success = mockData.removeSelection(parseInt(req.params.selectionId), req.user.id);
+
+  if (!success) {
+    return res.status(404).json({ error: { message: 'Selection not found' } });
+  }
+
+  // Broadcast update
+  const term = mockData.getActiveTerm();
+  const courses = mockData.getCoursesByTerm(term.id);
+  courses.forEach(course => {
+    io.to(`term_${term.id}`).emit('course_updated', course);
+  });
+
+  res.json({ message: 'Selection removed successfully' });
+});
+
+// ============ ADMIN ROUTES ============
+
+// Get all student selections
+app.get('/api/admin/selections/term/:termId', authenticateToken, requireAdmin, (req, res) => {
+  const students = mockData.getAllStudentSelections(parseInt(req.params.termId));
+  res.json({ students });
+});
+
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', mode: 'mock', timestamp: new Date().toISOString() });
+});
+
+// WebSocket connection handling
+const connectedUsers = new Map();
+
+io.on('connection', (socket) => {
+  console.log(`🔌 New socket connection: ${socket.id}`);
+
+  socket.on('authenticate', async (token) => {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'mock-secret-key');
+      const user = mockData.findUserById(decoded.userId);
+      if (user) {
+        socket.userId = user.id;
+        socket.userRole = user.role;
+        connectedUsers.set(user.id, socket.id);
+        socket.emit('authenticated', { userId: user.id, role: user.role });
+        console.log(`✅ Socket authenticated: User ${user.id} (${user.role})`);
+      } else {
+        socket.emit('authentication_error', { message: 'Invalid token' });
+      }
+    } catch (error) {
+      socket.emit('authentication_error', { message: 'Authentication failed' });
+    }
+  });
+
+  socket.on('join_term', (termId) => {
+    socket.join(`term_${termId}`);
+    console.log(`User ${socket.userId} joined term ${termId}`);
+  });
+
+  socket.on('leave_term', (termId) => {
+    socket.leave(`term_${termId}`);
+    console.log(`User ${socket.userId} left term ${termId}`);
+  });
+
+  socket.on('disconnect', () => {
+    if (socket.userId) {
+      connectedUsers.delete(socket.userId);
+      console.log(`🔌 User ${socket.userId} disconnected`);
+    }
+  });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: { message: 'Route not found' } });
+});
+
+// Start server
+const PORT = process.env.PORT || 3001;
+server.listen(PORT, () => {
+  console.log(`
+╔════════════════════════════════════════════════════════╗
+║  🎓 Accelerated Course Selection System (MOCK MODE)   ║
+║  ✅ Server running on port ${PORT}                       ║
+║  🌐 CORS origin: ${process.env.CORS_ORIGIN || 'http://localhost:3000'}           ║
+║  🔌 WebSocket ready for real-time updates             ║
+║  📊 Using mock in-memory database                     ║
+╚════════════════════════════════════════════════════════╝
+
+Test Accounts:
+  Admin:    admin@batten.virginia.edu / admin123
+  Student1: student1@virginia.edu / password123
+  Student2: student2@virginia.edu / password123
+  `);
+});
+
+module.exports = { app, io };

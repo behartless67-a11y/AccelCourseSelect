@@ -1,0 +1,19 @@
+group_code,course_code,course_name,course_type,section_number,capacity,schedule,instructor,room
+ECON,LPPA 7110,Economics of Public Policy II,section,001,17,Tu/Th 11am-12:15pm,Dr. Smith,Room 101
+ECON,LPPA 7110,Economics of Public Policy II,section,002,16,Tu/Th 2-3:15pm,Dr. Smith,Room 102
+ECON,LPPA 7110,Economics of Public Policy II,discussion,100,8,M 5-5:50pm,TA Johnson,Room 103
+ECON,LPPA 7110,Economics of Public Policy II,discussion,101,8,Tu 5-5:50pm,TA Johnson,Room 104
+ECON,LPPA 7110,Economics of Public Policy II,discussion,102,9,W 6-6:50pm,TA Williams,Room 105
+ECON,LPPA 7110,Economics of Public Policy II,discussion,103,8,T 1-1:50pm,TA Williams,Room 106
+RMDA,LPPA 7160,Research Methods and Data Analysis II,section,001,16,M/W 9:30-10:45am,Dr. Jones,Room 201
+RMDA,LPPA 7160,Research Methods and Data Analysis II,section,002,17,M/W 11am-12:15pm,Dr. Jones,Room 202
+RMDA,LPPA 7160,Research Methods and Data Analysis II,discussion,100,8,M 10-10:50am,TA Davis,Room 203
+RMDA,LPPA 7160,Research Methods and Data Analysis II,discussion,101,9,M 11-11:50am,TA Davis,Room 204
+RMDA,LPPA 7160,Research Methods and Data Analysis II,discussion,102,9,M 6-6:50pm,TA Brown,Room 205
+RMDA,LPPA 7160,Research Methods and Data Analysis II,discussion,103,10,Tu 4-4:50pm,TA Brown,Room 206
+POLICY,LPPP 6250,Introduction to Policy Analysis,section,001,17,M/W 2-3:15pm,Dr. Anderson,Room 301
+POLICY,LPPP 6250,Introduction to Policy Analysis,section,002,16,M/W 3:30-4:45pm,Dr. Anderson,Room 302
+POLICY,LPPP 6250,Introduction to Policy Analysis,discussion,100,8,M 2-2:50pm,TA Martinez,Room 303
+POLICY,LPPP 6250,Introduction to Policy Analysis,discussion,101,8,M 4-4:30pm,TA Martinez,Room 304
+POLICY,LPPP 6250,Introduction to Policy Analysis,discussion,102,8,W 5-5:50pm,TA Garcia,Room 305
+POLICY,LPPP 6250,Introduction to Policy Analysis,discussion,103,9,W 6-6:50pm,TA Garcia,Room 306
