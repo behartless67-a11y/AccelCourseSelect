@@ -18,7 +18,13 @@
       "Bash(pkill:*)",
       "Bash(PORT=3002 node:*)",
       "Bash(npm run build:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(nul)",
+      "Bash(timeout /t 2 /nobreak)",
+      "Bash(PORT=3001 node:*)",
+      "Bash(CORS_ORIGIN=http://localhost:3000 PORT=3001 node:*)",
+      "Bash(findstr:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []
