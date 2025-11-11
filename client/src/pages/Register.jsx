@@ -59,13 +59,23 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      {/* Background Image */}
+      <div className="fixed inset-0 -z-10" style={{
+        backgroundImage: 'url(/garrett-hall-sunset.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        filter: 'grayscale(100%)',
+      }}></div>
+      <div className="fixed inset-0 bg-white/85 -z-10"></div>
+
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-4xl font-bold text-uva-navy font-serif">
             Create your account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <div className="w-24 h-1 bg-uva-orange mx-auto my-4"></div>
+          <p className="mt-2 text-center text-sm text-uva-navy">
             Frank Batten School Course Selection
           </p>
         </div>
@@ -175,7 +185,7 @@ function Register() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-uva-navy hover:bg-uva-blue-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uva-orange disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Creating account...' : 'Register'}
               </button>
@@ -183,7 +193,7 @@ function Register() {
 
             <div className="text-sm text-center">
               <span className="text-gray-600">Already have an account? </span>
-              <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+              <Link to="/login" className="font-medium text-uva-orange hover:text-uva-orange-light">
                 Sign in here
               </Link>
             </div>

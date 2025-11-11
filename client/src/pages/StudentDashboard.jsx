@@ -112,6 +112,15 @@ function StudentDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Background Image */}
+      <div className="fixed inset-0 -z-10" style={{
+        backgroundImage: 'url(/garrett-hall-sunset.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        filter: 'grayscale(100%)',
+      }}></div>
+      <div className="fixed inset-0 bg-white/85 -z-10"></div>
+
       {/* Header */}
       <header className="bg-uva-navy text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-8 py-4">

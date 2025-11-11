@@ -13,8 +13,8 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-    methods: ['GET', 'POST'],
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3001',
+    methods: ['GET', 'POST', 'DELETE', 'PUT'],
     credentials: true,
   },
 });
@@ -22,7 +22,7 @@ const io = socketIo(server, {
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3001',
   credentials: true,
 }));
 app.use(express.json());
@@ -98,25 +98,26 @@ app.post('/api/auth/register', (req, res) => {
   });
 });
 
-// Login
+// Login (TEST MODE - Password not validated)
 app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
 
+  console.log('🔐 Login attempt (TEST MODE - password not validated):', email);
+
   if (!email || !password) {
+    console.log('❌ Missing credentials');
     return res.status(400).json({ error: { message: 'Email and password are required' } });
   }
 
   const user = mockData.findUserByEmail(email);
   if (!user) {
+    console.log('❌ User not found:', email);
     return res.status(401).json({ error: { message: 'Invalid credentials' } });
   }
 
-  const isValidPassword = await bcrypt.compare(password, user.password_hash);
-  if (!isValidPassword) {
-    return res.status(401).json({ error: { message: 'Invalid credentials' } });
-  }
-
+  console.log('✅ User found:', user.email, '| Skipping password validation (TEST MODE)');
   const token = generateToken(user);
+  console.log('✅ Login successful (TEST MODE):', user.email);
 
   res.json({
     message: 'Login successful',
@@ -298,15 +299,25 @@ server.listen(PORT, () => {
 ╔════════════════════════════════════════════════════════╗
 ║  🎓 Accelerated Course Selection System (MOCK MODE)   ║
 ║  ✅ Server running on port ${PORT}                       ║
-║  🌐 CORS origin: ${process.env.CORS_ORIGIN || 'http://localhost:3000'}           ║
+║  🌐 CORS origin: ${process.env.CORS_ORIGIN || 'http://localhost:3001'}           ║
 ║  🔌 WebSocket ready for real-time updates             ║
 ║  📊 Using mock in-memory database                     ║
 ╚════════════════════════════════════════════════════════╝
 
 Test Accounts:
-  Admin:    admin@batten.virginia.edu / admin123
-  Student1: student1@virginia.edu / password123
-  Student2: student2@virginia.edu / password123
+  Admin:     admin@batten.virginia.edu / admin123
+  Student1:  student1@virginia.edu / password123
+  Student2:  student2@virginia.edu / password123
+  Student3:  student3@virginia.edu / password123
+  Student4:  student4@virginia.edu / password123
+  Student5:  student5@virginia.edu / password123
+  Student6:  student6@virginia.edu / password123
+  Student7:  student7@virginia.edu / password123
+  Student8:  student8@virginia.edu / password123
+  Student9:  student9@virginia.edu / password123
+  Student10: student10@virginia.edu / password123
+  Student11: student11@virginia.edu / password123
+  Student12: student12@virginia.edu / password123
   `);
 });
 

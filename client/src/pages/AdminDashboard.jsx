@@ -81,24 +81,33 @@ function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
+      {/* Background Image */}
+      <div className="fixed inset-0 -z-10" style={{
+        backgroundImage: 'url(/garrett-hall-sunset.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        filter: 'grayscale(100%)',
+      }}></div>
+      <div className="fixed inset-0 bg-white/85 -z-10"></div>
+
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-uva-navy text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold">
                 Admin Dashboard - {activeTerm?.name}
               </h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-gray-300 mt-1">
                 Manage courses and student registrations
               </p>
             </div>
             <button
               onClick={logout}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+              className="px-4 py-2 bg-uva-orange hover:bg-uva-orange-light rounded-lg font-semibold transition-colors text-sm"
             >
-              Logout
+              Sign Out
             </button>
           </div>
         </div>
