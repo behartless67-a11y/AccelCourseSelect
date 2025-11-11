@@ -29,13 +29,28 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
+      {/* Background Image */}
+      <div
+        className="fixed inset-0 -z-10"
+        style={{
+          backgroundImage: 'url(/garrett-hall-sunset.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+          filter: 'grayscale(100%)',
+        }}
+      ></div>
+      {/* Background Overlay */}
+      <div className="fixed inset-0 bg-white/85 -z-10"></div>
+
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-4xl font-bold text-uva-navy">
             Accelerated Course Selection
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <div className="w-24 h-1 bg-uva-orange mx-auto my-4"></div>
+          <p className="text-center text-sm text-gray-700">
             Frank Batten School of Leadership and Public Policy
           </p>
         </div>
@@ -82,7 +97,7 @@ function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-uva-orange hover:bg-uva-orange-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-uva-orange disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Signing in...' : 'Sign in'}
               </button>
@@ -90,7 +105,7 @@ function Login() {
 
             <div className="text-sm text-center">
               <span className="text-gray-600">Don't have an account? </span>
-              <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
+              <Link to="/register" className="font-medium text-uva-orange hover:text-uva-orange-light">
                 Register here
               </Link>
             </div>
