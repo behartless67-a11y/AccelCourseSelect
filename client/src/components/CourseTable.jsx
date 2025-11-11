@@ -1,8 +1,32 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import LiveIndicator from './LiveIndicator';
 
 function CourseTable({ courses, selections, onSelect }) {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [preferenceRank, setPreferenceRank] = useState(1);
+  const [updatedCourses, setUpdatedCourses] = useState(new Set());
+
+  // Track when courses are updated
+  useEffect(() => {
+    const previousCourses = new Map();
+    courses.forEach(c => {
+      const key = c.id;
+      if (previousCourses.has(key)) {
+        const prev = previousCourses.get(key);
+        if (prev.seats_remaining !== c.seats_remaining) {
+          setUpdatedCourses(prev => new Set([...prev, key]));
+          setTimeout(() => {
+            setUpdatedCourses(prev => {
+              const next = new Set(prev);
+              next.delete(key);
+              return next;
+            });
+          }, 3000);
+        }
+      }
+      previousCourses.set(key, c);
+    });
+  }, [courses]);
 
   // Group courses by group code
   const groupedCourses = useMemo(() => {
@@ -51,18 +75,29 @@ function CourseTable({ courses, selections, onSelect }) {
     }
   };
 
-  const getAvailabilityClass = (seatsRemaining) => {
-    if (seatsRemaining <= 0) return 'text-red-600 font-semibold';
-    if (seatsRemaining <= 3) return 'text-orange-600 font-semibold';
-    return 'text-green-600';
+  const getAvailabilityClass = (seatsRemaining, capacity) => {
+    if (seatsRemaining <= 0) return 'text-red-600 font-semibold bg-red-50';
+    const percentFull = ((capacity - seatsRemaining) / capacity) * 100;
+    if (percentFull >= 90) return 'text-orange-600 font-semibold bg-orange-50';
+    if (percentFull >= 75) return 'text-yellow-600 font-semibold bg-yellow-50';
+    return 'text-green-600 bg-green-50';
+  };
+
+  const getAvailabilityBadge = (seatsRemaining, capacity) => {
+    if (seatsRemaining <= 0) return { text: 'FULL', color: 'bg-red-500' };
+    const percentFull = ((capacity - seatsRemaining) / capacity) * 100;
+    if (percentFull >= 90) return { text: 'FILLING FAST', color: 'bg-orange-500' };
+    if (percentFull >= 75) return { text: 'FILLING', color: 'bg-yellow-500' };
+    return { text: 'AVAILABLE', color: 'bg-green-500' };
   };
 
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200">
+      <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
         <h2 className="text-xl font-semibold text-gray-900">
           Available Courses
         </h2>
+        <LiveIndicator />
       </div>
 
       <div className="overflow-x-auto">
@@ -107,18 +142,31 @@ function CourseTable({ courses, selections, onSelect }) {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {group.courses.map((course, idx) => (
+                  {group.courses.map((course, idx) => {
+                    const badge = getAvailabilityBadge(course.seats_remaining, course.capacity);
+                    const justUpdated = updatedCourses.has(course.id);
+
+                    return (
                     <tr
                       key={course.id}
                       className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} ${
                         isSelected(course.id) ? 'bg-blue-50' : ''
-                      }`}
+                      } ${justUpdated ? 'animate-pulse' : ''} transition-all duration-300`}
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          {course.code}
+                        <div className="flex items-center gap-2">
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {course.code}
+                            </div>
+                            <div className="text-sm text-gray-500">{course.name}</div>
+                          </div>
+                          {justUpdated && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-yellow-200 text-yellow-800 animate-pulse">
+                              JUST UPDATED
+                            </span>
+                          )}
                         </div>
-                        <div className="text-sm text-gray-500">{course.name}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {course.course_type}
@@ -132,11 +180,18 @@ function CourseTable({ courses, selections, onSelect }) {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {course.capacity}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {course.current_requests}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-900">{course.current_requests}</span>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-white ${badge.color}`}>
+                            {badge.text}
+                          </span>
+                        </div>
                       </td>
-                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${getAvailabilityClass(course.seats_remaining)}`}>
-                        {course.seats_remaining}
+                      <td className={`px-6 py-4 whitespace-nowrap`}>
+                        <div className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-bold ${getAvailabilityClass(course.seats_remaining, course.capacity)}`}>
+                          {course.seats_remaining} left
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         {isSelected(course.id) ? (
@@ -162,7 +217,8 @@ function CourseTable({ courses, selections, onSelect }) {
                         )}
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
