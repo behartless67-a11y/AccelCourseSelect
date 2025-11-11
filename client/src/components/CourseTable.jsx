@@ -78,11 +78,18 @@ function CourseTable({ courses, selections, onSelect }) {
 
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-900">
-          Available Courses
-        </h2>
-        <LiveIndicator />
+      <div className="px-6 py-4 border-b border-gray-200">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Available Courses
+          </h2>
+          <LiveIndicator />
+        </div>
+        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+          <p className="text-sm font-medium text-blue-900">
+            Select <span className="font-bold">ONE Section</span> and <span className="font-bold">ONE Discussion</span> from each area below (6 total courses)
+          </p>
+        </div>
       </div>
 
       <div className="overflow-x-auto">

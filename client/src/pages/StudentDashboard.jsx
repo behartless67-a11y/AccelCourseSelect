@@ -4,6 +4,7 @@ import socketService from '../services/socket';
 import { AuthContext } from '../context/AuthContext';
 import CourseTable from '../components/CourseTable';
 import MySelections from '../components/MySelections';
+import backgroundImage from '../assets/garrett-hall-sunset.jpg';
 
 function StudentDashboard() {
   const { user, logout } = useContext(AuthContext);
@@ -114,7 +115,7 @@ function StudentDashboard() {
     <div className="min-h-screen bg-background">
       {/* Background Image */}
       <div className="fixed inset-0 -z-10" style={{
-        backgroundImage: 'url(/garrett-hall-sunset.jpg)',
+        backgroundImage: `url(${backgroundImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         filter: 'grayscale(100%)',
@@ -155,13 +156,18 @@ function StudentDashboard() {
               <h3 className="text-sm font-medium text-uva-navy font-serif">
                 Course Selection Instructions
               </h3>
-              <div className="mt-2 text-sm text-uva-navy">
-                <p>
-                  Select one Section and one Discussion course from each of the three groups below.
-                  You must make a total of 6 selections (3 Sections + 3 Discussions).
-                  The system will show real-time seat availability. Your selections
-                  will be processed using an optimization algorithm to maximize
-                  student satisfaction while respecting course capacities.
+              <div className="mt-2 text-sm text-uva-navy space-y-2">
+                <p className="font-semibold">
+                  Required: Select 6 total courses (ONE Section + ONE Discussion from each area)
+                </p>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li><span className="font-medium">ECON:</span> Select 1 Section and 1 Discussion</li>
+                  <li><span className="font-medium">RMDA:</span> Select 1 Section and 1 Discussion</li>
+                  <li><span className="font-medium">POLICY:</span> Select 1 Section and 1 Discussion</li>
+                </ul>
+                <p className="text-xs mt-2">
+                  Use the radio buttons to select courses. The system shows real-time seat availability.
+                  Your selections will be processed to maximize satisfaction while respecting capacities.
                 </p>
               </div>
             </div>

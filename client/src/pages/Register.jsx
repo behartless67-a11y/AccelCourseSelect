@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import { AuthContext } from '../context/AuthContext';
+import backgroundImage from '../assets/garrett-hall-sunset.jpg';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -62,7 +63,7 @@ function Register() {
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       {/* Background Image */}
       <div className="fixed inset-0 -z-10" style={{
-        backgroundImage: 'url(/garrett-hall-sunset.jpg)',
+        backgroundImage: `url(${backgroundImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         filter: 'grayscale(100%)',

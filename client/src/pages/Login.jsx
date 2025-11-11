@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import { AuthContext } from '../context/AuthContext';
+import backgroundImage from '../assets/garrett-hall-sunset.jpg';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -34,7 +35,7 @@ function Login() {
       <div
         className="fixed inset-0 -z-10"
         style={{
-          backgroundImage: 'url(/garrett-hall-sunset.jpg)',
+          backgroundImage: `url(${backgroundImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',

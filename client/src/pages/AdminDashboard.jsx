@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { coursesAPI, adminAPI } from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import CourseManagement from '../components/CourseManagement';
+import backgroundImage from '../assets/garrett-hall-sunset.jpg';
 
 function AdminDashboard() {
   const { user, logout } = useContext(AuthContext);
@@ -86,7 +87,7 @@ function AdminDashboard() {
     <div className="min-h-screen bg-background">
       {/* Background Image */}
       <div className="fixed inset-0 -z-10" style={{
-        backgroundImage: 'url(/garrett-hall-sunset.jpg)',
+        backgroundImage: `url(${backgroundImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         filter: 'grayscale(100%)',
