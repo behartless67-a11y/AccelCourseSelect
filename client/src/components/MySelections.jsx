@@ -1,7 +1,11 @@
 import React from 'react';
 
 function MySelections({ selections, onRemove, onRefresh }) {
-  const sortedSelections = [...selections].sort((a, b) => a.preference_rank - b.preference_rank);
+  // Group selections by group_code and course_type for better organization
+  const sortedSelections = [...selections].sort((a, b) => {
+    if (a.group_code !== b.group_code) return a.group_code.localeCompare(b.group_code);
+    return a.course_type.localeCompare(b.course_type);
+  });
 
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden mb-6">
@@ -15,7 +19,7 @@ function MySelections({ selections, onRemove, onRefresh }) {
         {sortedSelections.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <p className="text-lg mb-2">No courses selected yet</p>
-            <p className="text-sm">Select up to 3 courses from the list below</p>
+            <p className="text-sm">Select 6 courses total (1 Section + 1 Discussion from each group)</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -25,9 +29,9 @@ function MySelections({ selections, onRemove, onRefresh }) {
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
               >
                 <div className="flex items-center flex-1">
-                  <div className="flex-shrink-0 w-24">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                      Choice #{selection.preference_rank}
+                  <div className="flex-shrink-0 w-32">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {selection.group_code} {selection.course_type}
                     </span>
                   </div>
                   <div className="ml-4 flex-1">
@@ -54,15 +58,15 @@ function MySelections({ selections, onRemove, onRefresh }) {
               </div>
             ))}
 
-            {sortedSelections.length < 3 && (
+            {sortedSelections.length < 6 && (
               <div className="text-center py-4 text-sm text-gray-500 bg-yellow-50 rounded-lg border border-yellow-200">
-                You have selected {sortedSelections.length} of 3 courses. Select {3 - sortedSelections.length} more.
+                You have selected {sortedSelections.length} of 6 courses. Select {6 - sortedSelections.length} more.
               </div>
             )}
 
-            {sortedSelections.length === 3 && (
+            {sortedSelections.length === 6 && (
               <div className="text-center py-4 text-sm text-green-700 bg-green-50 rounded-lg border border-green-200">
-                ✓ All 3 course preferences selected!
+                ✓ All 6 course selections complete!
               </div>
             )}
           </div>

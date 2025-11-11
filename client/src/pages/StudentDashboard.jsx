@@ -157,7 +157,8 @@ function StudentDashboard() {
               </h3>
               <div className="mt-2 text-sm text-uva-navy">
                 <p>
-                  Select your 1st, 2nd, and 3rd choice courses from the list below.
+                  Select one Section and one Discussion course from each of the three groups below.
+                  You must make a total of 6 selections (3 Sections + 3 Discussions).
                   The system will show real-time seat availability. Your selections
                   will be processed using an optimization algorithm to maximize
                   student satisfaction while respecting course capacities.

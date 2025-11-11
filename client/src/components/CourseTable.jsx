@@ -2,8 +2,6 @@ import React, { useState, useMemo, useEffect } from 'react';
 import LiveIndicator from './LiveIndicator';
 
 function CourseTable({ courses, selections, onSelect }) {
-  const [selectedCourse, setSelectedCourse] = useState(null);
-  const [preferenceRank, setPreferenceRank] = useState(1);
   const [updatedCourses, setUpdatedCourses] = useState(new Set());
 
   // Track when courses are updated
@@ -49,30 +47,17 @@ function CourseTable({ courses, selections, onSelect }) {
     return selections.some((s) => s.course_id === courseId);
   };
 
-  const getSelectionRank = (courseId) => {
-    const selection = selections.find((s) => s.course_id === courseId);
-    return selection?.preference_rank;
+  const getSelectedForGroup = (groupCode, courseType) => {
+    const selected = selections.find(s => {
+      const course = courses.find(c => c.id === s.course_id);
+      return course && course.group_code === groupCode && course.course_type === courseType;
+    });
+    return selected?.course_id;
   };
 
-  const handleSelectClick = (course) => {
-    setSelectedCourse(course);
-    // If already selected, use that rank
-    const existingRank = getSelectionRank(course.id);
-    if (existingRank) {
-      setPreferenceRank(existingRank);
-    } else {
-      // Auto-select next available rank
-      const usedRanks = selections.map((s) => s.preference_rank);
-      const nextRank = [1, 2, 3].find((r) => !usedRanks.includes(r)) || 1;
-      setPreferenceRank(nextRank);
-    }
-  };
-
-  const handleConfirmSelection = () => {
-    if (selectedCourse) {
-      onSelect(selectedCourse.id, preferenceRank);
-      setSelectedCourse(null);
-    }
+  const handleCourseSelect = (course) => {
+    // When selecting a course, it will replace any existing selection in that group/type
+    onSelect(course.id, 1); // Pass 1 as a dummy preference rank since we're not using it
   };
 
   const getAvailabilityClass = (seatsRemaining, capacity) => {
@@ -193,28 +178,14 @@ function CourseTable({ courses, selections, onSelect }) {
                           {course.seats_remaining} left
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {isSelected(course.id) ? (
-                          <div className="flex items-center">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              Choice #{getSelectionRank(course.id)}
-                            </span>
-                            <button
-                              onClick={() => handleSelectClick(course)}
-                              className="ml-2 text-blue-600 hover:text-blue-800 text-xs"
-                            >
-                              Change
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => handleSelectClick(course)}
-                            className="text-blue-600 hover:text-blue-800 font-medium"
-                            disabled={selections.length >= 3}
-                          >
-                            Select
-                          </button>
-                        )}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                        <input
+                          type="radio"
+                          name={`${course.group_code}-${course.course_type}`}
+                          checked={isSelected(course.id)}
+                          onChange={() => handleCourseSelect(course)}
+                          className="h-4 w-4 text-uva-orange focus:ring-uva-orange border-gray-300 cursor-pointer"
+                        />
                       </td>
                     </tr>
                     );
@@ -225,65 +196,6 @@ function CourseTable({ courses, selections, onSelect }) {
           </div>
         ))}
       </div>
-
-      {/* Selection Modal */}
-      {selectedCourse && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              Select Course Preference
-            </h3>
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-2">
-                <strong>{selectedCourse.code}</strong> - {selectedCourse.name}
-              </p>
-              <p className="text-sm text-gray-600">
-                Section {selectedCourse.section_number} | {selectedCourse.schedule || 'TBA'}
-              </p>
-            </div>
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Preference Rank
-              </label>
-              <div className="space-y-2">
-                {[1, 2, 3].map((rank) => (
-                  <label key={rank} className="flex items-center">
-                    <input
-                      type="radio"
-                      value={rank}
-                      checked={preferenceRank === rank}
-                      onChange={(e) => setPreferenceRank(parseInt(e.target.value))}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                    />
-                    <span className="ml-3 text-sm text-gray-700">
-                      {rank === 1 ? '1st Choice' : rank === 2 ? '2nd Choice' : '3rd Choice'}
-                      {selections.find((s) => s.preference_rank === rank) && (
-                        <span className="ml-2 text-xs text-gray-500">
-                          (will replace: {selections.find((s) => s.preference_rank === rank)?.code})
-                        </span>
-                      )}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
-            <div className="flex space-x-3">
-              <button
-                onClick={handleConfirmSelection}
-                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-              >
-                Confirm
-              </button>
-              <button
-                onClick={() => setSelectedCourse(null)}
-                className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
