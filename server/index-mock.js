@@ -240,6 +240,75 @@ app.get('/api/admin/selections/term/:termId', authenticateToken, requireAdmin, (
   res.json({ students });
 });
 
+// Create a new course
+app.post('/api/admin/courses', authenticateToken, requireAdmin, (req, res) => {
+  const { termId, groupCode, code, name, courseType, sectionNumber, capacity, schedule, instructor, room } = req.body;
+
+  if (!termId || !code || !name || !capacity) {
+    return res.status(400).json({ error: { message: 'Required fields missing: termId, code, name, capacity' } });
+  }
+
+  const newCourse = mockData.addCourse({
+    termId: parseInt(termId),
+    groupCode: groupCode || 'OTHER',
+    code,
+    name,
+    courseType,
+    sectionNumber,
+    capacity,
+    schedule,
+    instructor,
+    room,
+  });
+
+  res.status(201).json({ course: newCourse });
+});
+
+// Update a course
+app.put('/api/admin/courses/:courseId', authenticateToken, requireAdmin, (req, res) => {
+  const { courseId } = req.params;
+  const { capacity, schedule, instructor, room, code, name, courseType, sectionNumber, groupCode } = req.body;
+
+  const updates = {};
+  if (capacity !== undefined) updates.capacity = parseInt(capacity);
+  if (schedule !== undefined) updates.schedule = schedule;
+  if (instructor !== undefined) updates.instructor = instructor;
+  if (room !== undefined) updates.room = room;
+  if (code !== undefined) updates.code = code;
+  if (name !== undefined) updates.name = name;
+  if (courseType !== undefined) updates.course_type = courseType;
+  if (sectionNumber !== undefined) updates.section_number = sectionNumber;
+  if (groupCode !== undefined) {
+    updates.group_code = groupCode;
+    updates.group_name = groupCode;
+  }
+
+  const updatedCourse = mockData.updateCourse(parseInt(courseId), updates);
+
+  if (!updatedCourse) {
+    return res.status(404).json({ error: { message: 'Course not found' } });
+  }
+
+  // Broadcast update
+  const term = mockData.getActiveTerm();
+  io.to(`term_${term.id}`).emit('course_updated', updatedCourse);
+
+  res.json({ course: updatedCourse });
+});
+
+// Delete a course
+app.delete('/api/admin/courses/:courseId', authenticateToken, requireAdmin, (req, res) => {
+  const { courseId } = req.params;
+
+  const success = mockData.deleteCourse(parseInt(courseId));
+
+  if (!success) {
+    return res.status(404).json({ error: { message: 'Course not found' } });
+  }
+
+  res.json({ message: 'Course deleted successfully' });
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', mode: 'mock', timestamp: new Date().toISOString() });

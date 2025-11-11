@@ -17,7 +17,8 @@
       "Bash(taskkill:*)",
       "Bash(pkill:*)",
       "Bash(PORT=3002 node:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

@@ -301,6 +301,54 @@ const addUser = (email, password, firstName, lastName, studentId) => {
   return newUser;
 };
 
+const addCourse = (courseData) => {
+  const { termId, groupCode, code, name, courseType, sectionNumber, capacity, schedule, instructor, room } = courseData;
+
+  const newCourse = {
+    id: courses.length + 1,
+    term_id: termId,
+    group_code: groupCode,
+    group_name: groupCode, // For simplicity, use same as code
+    code,
+    name,
+    course_type: courseType || 'Section',
+    section_number: sectionNumber,
+    capacity: parseInt(capacity) || 0,
+    schedule: schedule || null,
+    instructor: instructor || null,
+    room: room || null,
+    created_at: new Date(),
+    updated_at: new Date(),
+  };
+
+  courses.push(newCourse);
+  return newCourse;
+};
+
+const updateCourse = (courseId, updates) => {
+  const index = courses.findIndex(c => c.id === courseId);
+  if (index === -1) return null;
+
+  courses[index] = {
+    ...courses[index],
+    ...updates,
+    updated_at: new Date(),
+  };
+
+  return courses[index];
+};
+
+const deleteCourse = (courseId) => {
+  const index = courses.findIndex(c => c.id === courseId);
+  if (index === -1) return false;
+
+  // Also remove any selections for this course
+  studentSelections = studentSelections.filter(s => s.course_id !== courseId);
+
+  courses.splice(index, 1);
+  return true;
+};
+
 module.exports = {
   users,
   terms,
@@ -316,4 +364,7 @@ module.exports = {
   removeSelection,
   getAllStudentSelections,
   addUser,
+  addCourse,
+  updateCourse,
+  deleteCourse,
 };
